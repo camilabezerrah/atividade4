@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de CNPJ</title>
+    <link rel="stylesheet" href="atividade4.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Digite o CNPJ desejado no campo abaixo para a consulta (apenas números):</h1>
+        <input type="text" id="cnpjInput">
+        <button id="consultarBtn">Consultar</button>
+        
+    
+        <div id="resultado" class="resultado"></div>
+    </div>
+    
+    <script>
+        const options = { method: 'GET', headers: { Accept: 'application/json' } };
+
+        document.getElementById('consultarBtn').addEventListener('click', async () => {
+            const cnpj = document.getElementById('cnpjInput').value.trim();
+
+            if (!cnpj || cnpj.length !== 14 || isNaN(cnpj)) {
+                alert("Por favor, insira um CNPJ válido com 14 dígitos!");
+                return;
+            }
+
+            const url = `https://receitaws.com.br/v1/cnpj/${cnpj}`;
+
+            try {
+                const response = await fetch(url, options);
+
+                if (!response.ok) {
+                    throw new Error('Erro na consulta do CNPJ.');
+                }
+
+                const data = await response.json();
+
+                const resultadoDiv = document.getElementById('resultado');
+                if (data.status === 'ERROR') {
+                    resultadoDiv.innerHTML = `<p>Erro: ${data.message}</p>`;
+                } else {
+                    resultadoDiv.innerHTML = `
+                        <p><strong>Status:</strong> ${data.status}</p>
+                        <p><strong>Nome:</strong> ${data.nome}</p>
+                        <p><strong>Endereço:</strong> ${data.logradouro}, ${data.numero}, ${data.complemento} - ${data.bairro} - ${data.uf}</p>
+                        <p><strong>Atividade Principal:</strong> ${data.atividade_principal[0].text}</p>
+                        <p><strong>Fantasia:</strong> ${data.fantasia}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Erro ao consultar o CNPJ.', error);
+                const resultadoDiv = document.getElementById('resultado');
+                resultadoDiv.innerHTML = `<p>Erro ao consultar o CNPJ. Tente novamente mais tarde!</p>`;
+            }
+        });
+    </script>
+
+</body>
+</html>
