@@ -12,7 +12,7 @@
         <input type="text" id="cnpjInput">
         <button id="consultarBtn">Consultar</button>
         
-    
+        <!-- Resultado será exibido aqui! -->
         <div id="resultado" class="resultado"></div>
     </div>
     
@@ -27,7 +27,7 @@
                 return;
             }
 
-            const url = `https://receitaws.com.br/v1/cnpj/${cnpj}`;
+            const url = `https://cors-anywhere.herokuapp.com/https://receitaws.com.br/v1/cnpj/${cnpj}`;
 
             try {
                 const response = await fetch(url, options);
@@ -37,17 +37,19 @@
                 }
 
                 const data = await response.json();
+                console.log('Dados recebidos:', data);
 
                 const resultadoDiv = document.getElementById('resultado');
+
                 if (data.status === 'ERROR') {
                     resultadoDiv.innerHTML = `<p>Erro: ${data.message}</p>`;
                 } else {
                     resultadoDiv.innerHTML = `
                         <p><strong>Status:</strong> ${data.status}</p>
-                        <p><strong>Nome:</strong> ${data.nome}</p>
-                        <p><strong>Endereço:</strong> ${data.logradouro}, ${data.numero}, ${data.complemento} - ${data.bairro} - ${data.uf}</p>
-                        <p><strong>Atividade Principal:</strong> ${data.atividade_principal[0].text}</p>
-                        <p><strong>Fantasia:</strong> ${data.fantasia}</p>
+                        <p><strong>Nome:</strong> ${data.nome || 'Não disponível'}</p>
+                        <p><strong>Endereço:</strong> ${data.logradouro || 'Não disponível'}, ${data.numero || 'Não disponível'}, ${data.complemento || 'Não disponível'} - ${data.bairro || 'Não disponível'} - ${data.uf || 'Não disponível'}</p>
+                        <p><strong>Atividade Principal:</strong> ${data.atividade_principal && data.atividade_principal[0] ? data.atividade_principal[0].text : 'Não disponível'}</p>
+                        <p><strong>Fantasia:</strong> ${data.fantasia || 'Não disponível'}</p>
                     `;
                 }
             } catch (error) {
@@ -57,6 +59,5 @@
             }
         });
     </script>
-
 </body>
 </html>
