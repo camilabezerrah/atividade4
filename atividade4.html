@@ -14,11 +14,13 @@
         
         <!-- Resultado será exibido aqui! -->
         <div id="resultado" class="resultado"></div>
+        <div id="timer" style="color: #836FFF; display: none;"></div>
     </div>
     
     <script>
         const options = { method: 'GET', headers: { Accept: 'application/json' } };
-
+        let timerInterval;
+        
         document.getElementById('consultarBtn').addEventListener('click', async () => {
             const cnpj = document.getElementById('cnpjInput').value.trim();
 
@@ -53,11 +55,37 @@
                     `;
                 }
             } catch (error) {
-                console.error('Erro ao consultar o CNPJ.', error);
+                console.error('Erro ao consultar CNPJ.', error);
                 const resultadoDiv = document.getElementById('resultado');
-                resultadoDiv.innerHTML = `<p>Erro ao consultar o CNPJ. Tente novamente mais tarde!</p>`;
+                resultadoDiv.innerHTML = `<p>Erro ao consultar CNPJ. Tente novamente mais tarde!</p>`;
+                
+                disableButtonForTimeout();
             }
         });
+
+        function disableButtonForTimeout() {
+            const consultarBtn = document.getElementById('consultarBtn');
+            const timerDiv = document.getElementById('timer');
+            consultarBtn.disabled = true;
+            timerDiv.style.display = 'block';
+            let countdown = 120;
+
+            timerDiv.innerHTML = `Você deve aguardar ${countdown} segundos antes de tentar novamente ou recarregar esta página`;
+
+            timerInterval = setInterval(() => {
+                countdown--;
+                timerDiv.innerHTML = `Você deve aguardar ${countdown} segundos antes de tentar novamente ou recarregar esta página`;
+
+                if (countdown <= 0) {
+                    clearInterval(timerInterval);
+                    consultarBtn.disabled = false;
+                    timerDiv.style.display = 'none';
+                }
+                if (countdown == 1) {
+                    timerDiv.innerHTML = `Você deve aguardar ${countdown} segundo antes de tentar novamente ou recarregar esta página`;
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>
